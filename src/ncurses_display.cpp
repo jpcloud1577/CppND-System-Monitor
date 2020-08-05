@@ -50,6 +50,7 @@ void NCursesDisplay::DisplaySystem(System& system, WINDOW* window) {
   mvwprintw(window, ++row, 2,
             ("Up Time: " + Format::ElapsedTime(system.UpTime())).c_str());
   wrefresh(window);
+  std::string value = Format::ElapsedTime(system.UpTime());
 }
 
 void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
@@ -99,6 +100,7 @@ void NCursesDisplay::Display(System& system, int n) {
     box(system_window, 0, 0);
     box(process_window, 0, 0);
     DisplaySystem(system, system_window);
+    std::vector<Process> sys = system.Processes();
     DisplayProcesses(system.Processes(), process_window, n);
     wrefresh(system_window);
     wrefresh(process_window);
