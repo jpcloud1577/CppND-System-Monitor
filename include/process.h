@@ -17,6 +17,7 @@ class Process {
   long int UpTime();                       // TODO: See src/process.cpp
   bool operator<(Process const& a) const;  // TODO: See src/process.cpp
   void update();
+  long ActiveJiffies(int pid);
 
   // TODO: Declare any necessary private members
  private:
@@ -27,7 +28,7 @@ class Process {
  float cpuUtilization_;
  std::string ram_;
  long int uptime_;
-
+ long actjiff_;
 };
 
 #endif

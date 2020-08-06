@@ -117,84 +117,57 @@ long LinuxParser::UpTime() {
 }
 
 // TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() {
-  std::ifstream Jiffie(kProcDirectory + kStatFilename);
-  string line, key, value1, value2, value3, value4, value5, value6, value7,
-      value8, value9, value10;
-  long IntValue, IntValue1, IntValue2, IntValue3, IntValue4, IntValue5,
-      IntValue6, IntValue7, IntValue8, IntValue9, IntValue10;
-
-  if (Jiffie.is_open()) {
-    while (std::getline(Jiffie, line)) {
-      std::istringstream linestr(line);
-      linestr >> key;
-      if (key == "cpu") {
-        linestr >> key >> value1 >> value2 >> value3 >> value4 >> value5 >>
-            value6 >> value7 >> value8 >> value9 >> value10;
-
-        std::stringstream intValue1(value1), intValue2(value2),
-            intValue3(value3), intValue4(value4), intValue5(value5),
-            intValue6(value6), intValue7(value7), intValue8(value8),
-            intValue9(value9), intValue10(value10);
-        intValue1 >> IntValue1;
-        intValue2 >> IntValue2;
-        intValue3 >> IntValue3;
-        intValue4 >> IntValue4;
-        intValue5 >> IntValue5;
-        intValue6 >> IntValue6;
-        intValue7 >> IntValue7;
-        intValue8 >> IntValue8;
-        intValue9 >> IntValue9;
-        intValue10 >> IntValue10;
-        IntValue = IntValue1 + IntValue2 + IntValue3 + IntValue4 + IntValue5 +
-                   IntValue6 + IntValue7 + IntValue8 + IntValue9 + IntValue10;
-        break;
-      }
-    }
-  }
-  return IntValue;
-}
+long LinuxParser::Jiffies() { return ActiveJiffies() + IdleJiffies(); }
 
 // TODO: Read and return the number of active jiffies for a PID
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid [[maybe_unused]]) { return 0; }
-
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() {
-  std::ifstream ActJiffie(kProcDirectory + kStatFilename);
-  string line, key, value1, value2, value3, value4, value5, value6, value7,
-      value8, value9, value10;
-  long IntValue, IntValue1, IntValue2, IntValue3, IntValue4, IntValue5,
-      IntValue6, IntValue7, IntValue8, IntValue9, IntValue10;
+long LinuxParser::ActiveJiffies(int pid) {
+  string line;
+  std::ifstream ActJiffie(kProcDirectory + std::to_string(pid) + kStatFilename);
 
   if (ActJiffie.is_open()) {
     while (std::getline(ActJiffie, line)) {
       std::istringstream linestr(line);
-      linestr >> key;
-      if (key == "cpu") {
-        linestr >> key >> value1 >> value2 >> value3 >> value4 >> value5 >>
-            value6 >> value7 >> value8 >> value9 >> value10;
-
-        std::stringstream intValue1(value1), intValue2(value2),
-            intValue3(value3), intValue6(value6), intValue7(value7),
-            intValue8(value8);
-
-        intValue1 >> IntValue1;
-        intValue2 >> IntValue2;
-        intValue3 >> IntValue3;
-        intValue6 >> IntValue6;
-        intValue7 >> IntValue7;
-        intValue8 >> IntValue8;
-        IntValue = IntValue1 + IntValue2 + IntValue3 + IntValue6 + IntValue7 +
-                   IntValue8;
-        break;
+      std::vector<std::string> jiffies;
+      for (std::string jiffie; linestr >> jiffie;) {
+        jiffies.push_back(jiffie);
+      }
+      if (jiffies[0] == "cpu") {
+        long activeJiffies =
+            atol(jiffies[1].c_str()) + atol(jiffies[2].c_str()) +
+            atol(jiffies[3].c_str()) + atol(jiffies[6].c_str()) +
+            atol(jiffies[7].c_str()) + atol(jiffies[8].c_str());
+        return activeJiffies;
       }
     }
   }
 
-  long ActJiff = IntValue - LinuxParser::IdleJiffies();
+  return 0;
+}
 
-  return ActJiff;
+// TODO: Read and return the number of active jiffies for the system
+long LinuxParser::ActiveJiffies() {
+  string line;
+  std::ifstream ActJiffie(kProcDirectory + kStatFilename);
+
+  if (ActJiffie.is_open()) {
+    while (std::getline(ActJiffie, line)) {
+      std::istringstream linestr(line);
+      std::vector<std::string> jiffies;
+      for (std::string jiffie; linestr >> jiffie;) {
+        jiffies.push_back(jiffie);
+      }
+      if (jiffies[0] == "cpu") {
+        long activeJiffies =
+            atol(jiffies[1].c_str()) + atol(jiffies[2].c_str()) +
+            atol(jiffies[3].c_str()) + atol(jiffies[6].c_str()) +
+            atol(jiffies[7].c_str()) + atol(jiffies[8].c_str());
+        return activeJiffies;
+      }
+    }
+  }
+
+  return 0;
 }
 
 // TODO: Read and return the number of idle jiffies for the system

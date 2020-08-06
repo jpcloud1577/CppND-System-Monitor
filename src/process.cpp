@@ -16,11 +16,14 @@ using std::vector;
 Process::Process(int pid) : pid_(pid), user_(LinuxParser::User(pid)), command_(LinuxParser::Command(pid)),
 cpuUtilization_(LinuxParser::CpuUtilization(pid)),
 ram_(LinuxParser::Ram(pid)),
-uptime_(LinuxParser::UpTime(pid)) {};
+uptime_(LinuxParser::UpTime(pid)),actjiff_(LinuxParser::ActiveJiffies(pid)) {};
 
 // TODO: Return this process's ID
 int Process::Pid() {
   return pid_;}
+
+long Process::ActiveJiffies(int pid){
+return actjiff_;}
 
 // TODO: Return this process's CPU utilization
 float Process::CpuUtilization() {
@@ -43,6 +46,7 @@ void Process::update() {
  
     ram_ = LinuxParser::Ram(pid_);
     uptime_ = LinuxParser::UpTime(pid_);
+    actjiff_= LinuxParser::ActiveJiffies(pid_);
 
 }
 
@@ -69,24 +73,9 @@ bool Process::operator<(Process const& a) const {
 
   f = (x.empty()) ? 0 : stof(x);
   g = (y.empty()) ? 0 : stof(y);
-  /*
-  if (y.empty()){
-    g =0;
-  }
-  else{
-    g = 
-  } 
-
-  if (x.empty()){
-    f =0;
-  }
-  else{
-    f = stof(x);
-  } */
-
-
+  
   return (f<g);
-  //return (a.cpuUtilization_ < this->cpuUtilization_); 
+  
 }
 
  
