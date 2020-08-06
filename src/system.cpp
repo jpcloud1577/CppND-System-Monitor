@@ -17,33 +17,41 @@ using std::string;
 using std::vector;
 using namespace std;
 
+System::System() : cpu_(Processor()) {}
+
 // TODO: Return the system's CPU
 Processor& System::Cpu() { 
-    Processor cpu_;
-    cpu_.Utilization();
     return cpu_; 
-}
+} 
 
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() {
 
     
   //vector<Process> locprocesses_;
-  processes_.clear();
+  //processes_.clear();
   vector<int> pids = LinuxParser::Pids();
   long int in = pids.size();
-  
-  for(long int i=0;i < in;i++){
-      Process prc(pids[i]);
-      processes_.emplace_back(prc);
+
+  std::vector<int> current_pids; 
+
+  for(auto process:processes_){
+      current_pids.push_back(process.Pid());
   }
-  //processes_ = processes_ ;
-  return processes_;
+
+  for (long int i = 0; i < in; i++) {
+    Process prc(pids[i]);
+    if (!(std::find(current_pids.begin(), current_pids.end(), pids[i]) !=
+      current_pids.end())) {
+      prc.update();
+      processes_.emplace_back(prc);
+    }
+  }
+    std::sort(processes_.begin(), processes_.end());
+
+    return processes_;
   
 }
-
-
-
 
 // TODO: Return the system's kernel identifier (string)
 std::string System::Kernel() { 

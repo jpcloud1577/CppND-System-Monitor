@@ -242,9 +242,9 @@ float LinuxParser::CpuUtilization(int pid) {
 
   long hertz = static_cast<long int>(sysconf(_SC_CLK_TCK));
 
-  long elapsedTime = LinuxParser::UpTime() - (atol(tokens[14].c_str())/hertz);
+  long elapsedTime = LinuxParser::UpTime() - (atol(tokens[14].c_str()) / hertz);
 
-  float cpuutil = 100 * (total_time/hertz) / elapsedTime;
+  float cpuutil = 100 * ((total_time / hertz) / elapsedTime);
 
   return cpuutil;
 }
@@ -313,12 +313,12 @@ std::string LinuxParser::Ram(int pid) {
       while (linestream >> key >> value) {
         if (key == "VmSize:") {
           // convert from kilobytes to megabytes
+          std::string RamTest = std::to_string(atol(value.c_str()) / 1000);
           return std::to_string(atol(value.c_str()) / 1000);
         }
       }
     }
   }
-  return string();
 }
 
 // This can eventually be made private

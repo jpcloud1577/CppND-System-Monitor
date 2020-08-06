@@ -33,6 +33,20 @@ string Process::Command() {
 
 }
 
+void Process::update() {
+    user_ = LinuxParser::User(pid_);
+    command_ = LinuxParser::Command(pid_);
+
+    long upTime = LinuxParser::UpTime() * sysconf(_SC_CLK_TCK);
+    long processTime = LinuxParser::ActiveJiffies(pid_);
+    cpuUtilization_ = static_cast<float>(processTime)/static_cast<float>(upTime); 
+ 
+    ram_ = LinuxParser::Ram(pid_);
+    uptime_ = LinuxParser::UpTime(pid_);
+
+}
+
+
 // TODO: Return this process's memory utilization
 string Process::Ram() {
   return ram_; }
@@ -47,7 +61,32 @@ long int Process::UpTime() {
 
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
-bool Process::operator<(Process const& a) const {
+bool Process::operator<(Process const& a) const {  
+
+ string y = ram_; 
+ string x = a.ram_;
+ float f,g;
+
+  f = (x.empty()) ? 0 : stof(x);
+  g = (y.empty()) ? 0 : stof(y);
+  /*
+  if (y.empty()){
+    g =0;
+  }
+  else{
+    g = 
+  } 
+
+  if (x.empty()){
+    f =0;
+  }
+  else{
+    f = stof(x);
+  } */
 
 
-  return true; }
+  return (f<g);
+  //return (a.cpuUtilization_ < this->cpuUtilization_); 
+}
+
+ 

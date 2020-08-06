@@ -17,7 +17,8 @@ class System {
   int RunningProcesses();             // TODO: See src/system.cpp
   std::string Kernel();               // TODO: See src/system.cpp
   std::string OperatingSystem();      // TODO: See src/system.cpp
-
+  System();
+  bool compareProcCpu(Process a, Process b);
   // TODO: Define any necessary private members
  private:
   Processor cpu_ = {};

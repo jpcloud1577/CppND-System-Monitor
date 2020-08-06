@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "/home/jpm/Udacity/c++/Projects/CppND-System-Monitor"
+		},
+		{
+			"path": "/home/jpm/Udacity/c++/ReferenceProjects/UdacityCPP/CppND-System-Monitor_ref"
 		}
 	],
 	"settings": {
