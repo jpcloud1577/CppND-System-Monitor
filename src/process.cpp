@@ -22,7 +22,7 @@ uptime_(LinuxParser::UpTime(pid)),actjiff_(LinuxParser::ActiveJiffies(pid)) {};
 int Process::Pid() {
   return pid_;}
 
-long Process::ActiveJiffies(int pid){
+long Process::ActiveJiffies(){
 return actjiff_;}
 
 // TODO: Return this process's CPU utilization
@@ -60,12 +60,13 @@ string Process::User() {
   return user_; }
 
 // TODO: Return the age of this process (in seconds)
-long int Process::UpTime() {
+long Process::UpTime() {
   return uptime_; }
 
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& a) const {  
+
 
  string y = ram_; 
  string x = a.ram_;
@@ -75,7 +76,7 @@ bool Process::operator<(Process const& a) const {
   g = (y.empty()) ? 0 : stof(y);
   
   return (f<g);
-  
+
 }
 
  

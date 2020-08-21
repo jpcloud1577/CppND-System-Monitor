@@ -1,10 +1,12 @@
 #include "linux_parser.h"
+#include "format.h"
 
 #include <dirent.h>
 #include <unistd.h>
 #include <iostream>
 #include <string>
 #include <vector>
+#include <bits/stdc++.h> 
 
 using std::cout;
 using std::stof;
@@ -73,7 +75,8 @@ float LinuxParser::MemoryUtilization() {
   std::ifstream memostream(kProcDirectory + kMeminfoFilename);
 
   string line, key, value;
-  float totalMemory, freeMemory, floatValue, memUtil;
+  float totalMemory, freeMemory, floatValue, MemUtil;
+
 
   if (memostream.is_open()) {
     while (std::getline(memostream, line)) {
@@ -92,9 +95,9 @@ float LinuxParser::MemoryUtilization() {
         break;
       }
     }
-    float MemUtil = 1 - (totalMemory - freeMemory) / totalMemory;
-    return MemUtil;
+     MemUtil = 1 - (totalMemory - freeMemory) / totalMemory;
   }
+  return MemUtil;
 }
 
 // TODO: Read and return the system uptime
@@ -172,7 +175,7 @@ long LinuxParser::ActiveJiffies() {
 long LinuxParser::IdleJiffies() {
   std::ifstream Jiffie(kProcDirectory + kStatFilename);
   string line, key, value1, value2, value3, value4, value5;
-  long IntValue, IntValue1, IntValue2, IntValue3, IntValue4, IntValue5;
+  long IntValue4, IntValue5;
 
   if (Jiffie.is_open()) {
     while (std::getline(Jiffie, line)) {
@@ -205,15 +208,21 @@ float LinuxParser::CpuUtilization(int pid) {
     }
   }
 
+  if (pid == 30916){
+    int a = 1 + 1;
+  }
+
   // Reference from
   // https://stackoverflow.com/questions/16726779/how-do-i-get-the-total-cpu-usage-of-an-application-from-proc-pid-stat/16736599#16736599
 
-  long total_time = atol(tokens[14].c_str()) + atol(tokens[15].c_str()) +
-                    atol(tokens[16].c_str()) + atol(tokens[17].c_str());
+  long total_time = atol(tokens[13].c_str()) + atol(tokens[14].c_str()) +
+                    atol(tokens[15].c_str()) + atol(tokens[16].c_str());
+
+  long uptime = LinuxParser::UpTime();
 
   long hertz = static_cast<long int>(sysconf(_SC_CLK_TCK));
 
-  long elapsedTime = LinuxParser::UpTime() - (atol(tokens[14].c_str()) / hertz);
+  long elapsedTime = uptime - (atol(tokens[21].c_str()) / hertz);
 
   float cpuutil = 100 * ((total_time / hertz) / elapsedTime);
 
@@ -274,22 +283,25 @@ string LinuxParser::Command(int pid) {
 }
 
 std::string LinuxParser::Ram(int pid) {
-  string key, value;
+  string key, value, Ram;
   string lineBuffer;
   std::string fileName{kProcDirectory + std::to_string(pid) + kStatusFilename};
   std::ifstream filestream(fileName);
+
+ 
   if (filestream.is_open()) {
     while (std::getline(filestream, lineBuffer)) {
       std::istringstream linestream(lineBuffer);
       while (linestream >> key >> value) {
         if (key == "VmSize:") {
           // convert from kilobytes to megabytes
-          std::string RamTest = std::to_string(atol(value.c_str()) / 1000);
-          return std::to_string(atol(value.c_str()) / 1000);
+          Ram = std::to_string(atol(value.c_str()) / 1000);
+          
         }
       }
     }
   }
+  return Ram;
 }
 
 // This can eventually be made private
@@ -312,26 +324,37 @@ std::string LinuxParser::Uid(int pid) {
 }
 
 std::string LinuxParser::User(int pid) {
-  string token;
+  string token, one, two;
   std::string fileName{kPasswordPath};
   std::ifstream filestream(fileName);
   string uid = Uid(pid);
   std::vector<string> tokens;
-  const char delimiter = ':';
+  const char delimiter = '\n';
   if (filestream.is_open()) {
     while (std::getline(filestream, token, delimiter)) {
-      tokens.push_back(token);
-    }
-    if (tokens[2] == uid) {
-      return tokens[0];
+      std::string str = "";
+      for (auto x : token) {
+        if (x == ':') {
+          tokens.push_back(str);
+          str = "";
+        } else {
+          str = str + x;
+        }
+      }
+
+      if (tokens[2] == uid && uid != "0"){
+        return tokens[0];
+      }
+      else{
+        tokens.clear();
+      }
     }
   }
-
   return string();
 }
 
 // UpTime in seconds
-long int LinuxParser::UpTime(int pid) {
+long LinuxParser::UpTime(int pid) {
   string token;
   std::string fileName{kProcDirectory + std::to_string(pid) + kStatFilename};
 
@@ -343,8 +366,9 @@ long int LinuxParser::UpTime(int pid) {
       tokens.push_back(token);
     }
   }
-
-  long upTime =
-      atol(tokens[22].c_str()) / static_cast<long int>(sysconf(_SC_CLK_TCK));
+  long tokencheck = atol(tokens[21].c_str());
+  long sysconfcheck = static_cast<long int> (sysconf(_SC_CLK_TCK));
+  long upTime = tokencheck/sysconfcheck;
+  
   return upTime;
 }
