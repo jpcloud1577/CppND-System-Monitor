@@ -1,12 +1,14 @@
 #include "linux_parser.h"
-#include "format.h"
 
+#include <bits/stdc++.h>
 #include <dirent.h>
 #include <unistd.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
-#include <bits/stdc++.h> 
+
+#include "format.h"
 
 using std::cout;
 using std::stof;
@@ -77,7 +79,6 @@ float LinuxParser::MemoryUtilization() {
   string line, key, value;
   float totalMemory, freeMemory, floatValue, MemUtil;
 
-
   if (memostream.is_open()) {
     while (std::getline(memostream, line)) {
       std::replace(line.begin(), line.end(), '=', ' ');
@@ -95,7 +96,7 @@ float LinuxParser::MemoryUtilization() {
         break;
       }
     }
-     MemUtil = 1 - (totalMemory - freeMemory) / totalMemory;
+    MemUtil = 1 - (totalMemory - freeMemory) / totalMemory;
   }
   return MemUtil;
 }
@@ -201,6 +202,7 @@ float LinuxParser::CpuUtilization(int pid) {
 
   std::ifstream fileStream(fileName);
   std::vector<std::string> tokens;
+  float cpuutil;
   const char delimiter = ' ';
   if (fileStream.is_open()) {
     while (std::getline(fileStream, token, delimiter)) {
@@ -208,23 +210,24 @@ float LinuxParser::CpuUtilization(int pid) {
     }
   }
 
-  if (pid == 30916){
-    int a = 1 + 1;
-  }
 
   // Reference from
   // https://stackoverflow.com/questions/16726779/how-do-i-get-the-total-cpu-usage-of-an-application-from-proc-pid-stat/16736599#16736599
 
-  long total_time = atol(tokens[13].c_str()) + atol(tokens[14].c_str()) +
-                    atol(tokens[15].c_str()) + atol(tokens[16].c_str());
+  float total_time = atol(tokens[13].c_str()) + atol(tokens[14].c_str()) +
+                     atol(tokens[15].c_str()) + atol(tokens[16].c_str());
 
-  long uptime = LinuxParser::UpTime();
+  float uptime = LinuxParser::UpTime();
 
-  long hertz = static_cast<long int>(sysconf(_SC_CLK_TCK));
+  float hertz = static_cast<long int>(sysconf(_SC_CLK_TCK));
 
-  long elapsedTime = uptime - (atol(tokens[21].c_str()) / hertz);
+  float elapsedTime = uptime - (atol(tokens[21].c_str()) / hertz);
 
-  float cpuutil = 100 * ((total_time / hertz) / elapsedTime);
+  if (elapsedTime != 0) {
+    cpuutil =  ((total_time / hertz) / elapsedTime);
+  } else {
+    cpuutil = 0;
+  }
 
   return cpuutil;
 }
@@ -288,7 +291,6 @@ std::string LinuxParser::Ram(int pid) {
   std::string fileName{kProcDirectory + std::to_string(pid) + kStatusFilename};
   std::ifstream filestream(fileName);
 
- 
   if (filestream.is_open()) {
     while (std::getline(filestream, lineBuffer)) {
       std::istringstream linestream(lineBuffer);
@@ -296,7 +298,6 @@ std::string LinuxParser::Ram(int pid) {
         if (key == "VmSize:") {
           // convert from kilobytes to megabytes
           Ram = std::to_string(atol(value.c_str()) / 1000);
-          
         }
       }
     }
@@ -342,10 +343,9 @@ std::string LinuxParser::User(int pid) {
         }
       }
 
-      if (tokens[2] == uid && uid != "0"){
+      if (tokens[2] == uid && uid != "0") {
         return tokens[0];
-      }
-      else{
+      } else {
         tokens.clear();
       }
     }
@@ -367,8 +367,8 @@ long LinuxParser::UpTime(int pid) {
     }
   }
   long tokencheck = atol(tokens[21].c_str());
-  long sysconfcheck = static_cast<long int> (sysconf(_SC_CLK_TCK));
-  long upTime = tokencheck/sysconfcheck;
-  
+  long sysconfcheck = static_cast<long int>(sysconf(_SC_CLK_TCK));
+  long upTime = tokencheck / sysconfcheck;
+
   return upTime;
 }
