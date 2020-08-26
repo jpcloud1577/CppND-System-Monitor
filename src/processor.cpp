@@ -1,16 +1,19 @@
 #include "processor.h"
-#include "linux_parser.h"
 
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "linux_parser.h"
 
 using std::string;
 using std::vector;
 
 double Processor::Utilization() {
   string line;
-  std::ifstream ActJiffie(LinuxParser::kProcDirectory + LinuxParser::kStatFilename);
+  double CPU_Percentage;
+  std::ifstream ActJiffie(LinuxParser::kProcDirectory +
+                          LinuxParser::kStatFilename);
 
   if (ActJiffie.is_open()) {
     while (std::getline(ActJiffie, line)) {
@@ -26,7 +29,7 @@ double Processor::Utilization() {
       double idle = atol(values[3].c_str());
       double iowait = atol(values[4].c_str());
       double irq = atol(values[5].c_str());
-      double softirq = atol(values[6].c_str()); 
+      double softirq = atol(values[6].c_str());
       double steal = atol(values[7].c_str());
 
       double PrevIdle = previdle + previowait;
@@ -43,38 +46,36 @@ double Processor::Utilization() {
 
       double idled = Idle - PrevIdle;
 
-      double CPU_Percentage = (totald - idled) / totald;
+      CPU_Percentage = (totald - idled) / totald;
 
-      int prevUser = user;
-      int prevnice = nice;
-      int prevsystem = system;
-      int previdle = idle;
-      int previowait = iowait;
-      int previrq = irq;
-      int prevsoftirq = softirq;
-      int prevsteal = steal;    
+      prevuser = user;
+      prevnice = nice;
+      prevsystem = system;
+      previdle = idle;
+      previowait = iowait;
+      previrq = irq;
+      prevsoftirq = softirq;
+      prevsteal = steal;
 
       return CPU_Percentage;
     }
   }
 }
 
+/*
+#include "linux_parser.h"
+#include "processor.h"
 
+// TODO: Return the aggregate CPU utilization
+float Processor::Utilization() {
 
-  /*
-  #include "linux_parser.h"
-  #include "processor.h"
+  //  long jiff = LinuxParser::Jiffies();
+   // long idle = LinuxParser::IdleJiffies();
 
-  // TODO: Return the aggregate CPU utilization
-  float Processor::Utilization() {
+    float Util = (LinuxParser::ActiveJiffies() - LinuxParser::IdleJiffies())/
+LinuxParser::ActiveJiffies();
 
-    //  long jiff = LinuxParser::Jiffies();
-     // long idle = LinuxParser::IdleJiffies();
+    return Util;
 
-      float Util = (LinuxParser::ActiveJiffies() - LinuxParser::IdleJiffies())/
-  LinuxParser::ActiveJiffies();
-
-      return Util;
-
-  }
-  */
+}
+*/
