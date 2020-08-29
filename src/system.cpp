@@ -24,28 +24,14 @@ System::System() : cpu_(Processor()) {}
 Processor& System::Cpu() { return cpu_; }
 
 // TODO: Return a container composed of the system's processes
-vector<Process>& System::Processes() {
-  // vector<Process> locprocesses_;
-  // processes_.clear();
+vector<Process>& System::Processes() { 
   vector<int> pids = LinuxParser::Pids();
-  long int in = pids.size();
-
-  std::vector<int> current_pids;
-
-  for (auto process : processes_) {
-    current_pids.push_back(process.Pid());
+  processes_.clear();
+  for (int pid: pids) {
+    processes_.push_back(Process(pid));
   }
-
-  for (long int i = 0; i < in; i++) {
-    Process prc(pids[i]);
-    if (!(std::find(current_pids.begin(), current_pids.end(), pids[i]) !=
-          current_pids.end())) {
-      prc.update();
-      processes_.emplace_back(prc);
-    }
-  }
+ 
   std::sort(processes_.begin(), processes_.end());
-
   return processes_;
 }
 
