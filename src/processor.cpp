@@ -60,22 +60,5 @@ double Processor::Utilization() {
       return CPU_Percentage;
     }
   }
+  return 0;
 }
-
-/*
-#include "linux_parser.h"
-#include "processor.h"
-
-// TODO: Return the aggregate CPU utilization
-float Processor::Utilization() {
-
-  //  long jiff = LinuxParser::Jiffies();
-   // long idle = LinuxParser::IdleJiffies();
-
-    float Util = (LinuxParser::ActiveJiffies() - LinuxParser::IdleJiffies())/
-LinuxParser::ActiveJiffies();
-
-    return Util;
-
-}
-*/

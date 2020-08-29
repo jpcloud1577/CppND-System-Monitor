@@ -325,12 +325,26 @@ std::string LinuxParser::Uid(int pid) {
 }
 
 std::string LinuxParser::User(int pid) {
-  string token, one, two;
+  string token, one, two, line,username, pwd;
   std::string fileName{kPasswordPath};
   std::ifstream filestream(fileName);
   string uid = Uid(pid);
   std::vector<string> tokens;
-  const char delimiter = '\n';
+ // const char delimiter = '\n';
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::replace(line.begin(), line.end(), ':', ' ');
+      std::istringstream linestream(line);
+      while (linestream >> username >> pwd >> uid) {
+        if (uid == Uid(pid)) {
+          return username;
+        }
+      }
+    }
+  }
+  return string();
+}
+  /*
   if (filestream.is_open()) {
     while (std::getline(filestream, token, delimiter)) {
       std::string str = "";
@@ -352,6 +366,7 @@ std::string LinuxParser::User(int pid) {
   }
   return string();
 }
+*/
 
 // UpTime in seconds
 long LinuxParser::UpTime(int pid) {
@@ -366,9 +381,11 @@ long LinuxParser::UpTime(int pid) {
       tokens.push_back(token);
     }
   }
+
   long tokencheck = atol(tokens[21].c_str());
   long sysconfcheck = static_cast<long int>(sysconf(_SC_CLK_TCK));
-  long upTime = tokencheck / sysconfcheck;
-
-  return upTime;
+  long upTimeProc = tokencheck / sysconfcheck;
+  long SysUptime = LinuxParser::UpTime();
+  long piduptime = SysUptime - upTimeProc;
+  return piduptime;
 }
