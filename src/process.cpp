@@ -54,6 +54,8 @@ long Process::UpTime() { return uptime_; }
 // TODO: Overload the "less than" comparison operator for Process objects
 // REMOVE: [[maybe_unused]] once you define the function
 bool Process::operator<(Process const& a) const {
+  /*
+  //Sort based on RAM utilization
   string y = ram_;
   string x = a.ram_;
   float f, g;
@@ -63,8 +65,9 @@ bool Process::operator<(Process const& a) const {
 
   return (f < g);
 
-  /*
+  */
+   //Sort based on CPU utilization
     bool flag = a.cpuUtilization_ < this->cpuUtilization_;
 
-    return flag; */
+    return flag; 
 }

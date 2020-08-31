@@ -113,7 +113,10 @@ long LinuxParser::UpTime() {
     linestr >> key;
     std::stringstream intValue(key);
     intValue >> IntValue;
+    Uptim.close();
   }
+
+  
 
   return IntValue;
 }
@@ -295,9 +298,9 @@ std::string LinuxParser::Ram(int pid) {
     while (std::getline(filestream, lineBuffer)) {
       std::istringstream linestream(lineBuffer);
       while (linestream >> key >> value) {
-        if (key == "VmSize:") {
+        if (key == "VmData:") {
           // convert from kilobytes to megabytes
-          Ram = std::to_string(atol(value.c_str()) / 1000);
+          Ram = std::to_string(atol(value.c_str()) / 1024);
         }
       }
     }
